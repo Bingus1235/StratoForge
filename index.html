@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StratoForge | American Rocketry Competition Team</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8f9fa;
+      --fg: #0d1117;
+      --muted: #57606a;
+      --accent: #e85d04;
+      --accent-hover: #dc2f02;
+      --card: #ffffff;
+      --border: #d0d7de;
+      --nav-bg: rgba(255,255,255,0.92);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg);
+      color: var(--fg);
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    /* Page sections */
+    .page {
+      display: none;
+      min-height: calc(100vh - 80px);
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Navigation */
+    .nav-link {
+      position: relative;
+      transition: color 0.2s ease;
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--accent);
+      transition: width 0.3s ease;
+    }
+
+    .nav-link:hover::after,
+    .nav-link.active::after {
+      width: 100%;
+    }
+
+    .nav-link:hover {
+      color: var(--accent);
+    }
+
+    /* Dropdown */
+    .dropdown {
+      position: relative;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      min-width: 160px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 0;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(8px);
+      transition: all 0.25s ease;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+      z-index: 100;
+    }
+
+    .dropdown:hover .dropdown-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .dropdown-item {
+      display: block;
+      padding: 10px 20px;
+      color: var(--fg);
+      text-decoration: none;
+      font-size: 14px;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .dropdown-item:hover {
+      background: var(--bg);
+      color: var(--accent);
+    }
+
+    /* Buttons */
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      padding: 12px 28px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 15px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-block;
+      text-decoration: none;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(232, 93, 4, 0.3);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--fg);
+      padding: 12px 28px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 15px;
+      border: 2px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-block;
+      text-decoration: none;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Hero section */
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, rgba(232,93,4,0.1), rgba(232,93,4,0.05));
+      border: 1px solid rgba(232,93,4,0.2);
+      padding: 8px 16px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--accent);
+      margin-bottom: 24px;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 32px;
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+      transform: translateY(-4px);
+    }
+
+    /* Image container */
+    .hero-image-container {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #e5e7eb 0%, #f3f4f6 100%);
+    }
+
+    .hero-image-container::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(45deg, var(--accent), #fb8500);
+      opacity: 0.08;
+    }
+
+    /* Floating elements animation */
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .float-animation {
+      animation: float 4s ease-in-out infinite;
+    }
+
+    /* Grid pattern background */
+    .grid-pattern {
+      background-image: 
+        linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    /* Form inputs */
+    .form-input {
+      width: 100%;
+      padding: 14px 18px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: inherit;
+      background: var(--card);
+      transition: all 0.2s ease;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(232,93,4,0.15);
+    }
+
+    .form-input::placeholder {
+      color: var(--muted);
+    }
+
+    /* Stats counter */
+    .stat-number {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 48px;
+      font-weight: 700;
+      color: var(--fg);
+      line-height: 1;
+    }
+
+    /* Mobile menu */
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 80px;
+      left: 0;
+      right: 0;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 20px;
+      z-index: 99;
+    }
+
+    .mobile-menu.open {
+      display: block;
+      animation: slideDown 0.25s ease-out;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .stat-number {
+        font-size: 36px;
+      }
+    }
+  </style>
+</head>
+<body class="grid-pattern">
+
+  <!-- Navigation -->
+  <nav class="fixed top-0 left-0 right-0 z-50 backdrop-blur-md" style="background: var(--nav-bg); border-bottom: 1px solid var(--border);">
+    <div class="max-w-7xl mx-auto px-6 py-4">
+      <div class="flex items-center justify-between">
+        <!-- Logo -->
+        <a href="#" onclick="showPage('home')" class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, var(--accent), #fb8500);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L8 10h8L12 2z"/>
+              <path d="M8 10l-4 8h16l-4-8"/>
+              <path d="M12 18v4"/>
+              <path d="M8 22h8"/>
+            </svg>
+          </div>
+          <span class="text-xl font-bold" style="font-family: 'Space Grotesk', sans-serif;">StratoForge</span>
+        </a>
+
+        <!-- Desktop Nav -->
+        <div class="hidden md:flex items-center gap-8">
+          <a href="#" onclick="showPage('home')" class="nav-link active text-sm font-medium" data-page="home">Home</a>
+          
+          <div class="dropdown">
+            <a href="#" onclick="showPage('about')" class="nav-link text-sm font-medium flex items-center gap-1" data-page="about">
+              About
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </a>
+            <div class="dropdown-menu">
+              <a href="#" onclick="showPage('team')" class="dropdown-item">Our Team</a>
+              <a href="#" onclick="showPage('about')" class="dropdown-item">About Us</a>
+            </div>
+          </div>
+
+          <a href="#" onclick="showPage('outreach')" class="nav-link text-sm font-medium" data-page="outreach">Outreach</a>
+          <a href="#" onclick="showPage('rockets')" class="nav-link text-sm font-medium" data-page="rockets">Rockets</a>
+          <a href="#" onclick="showPage('contact')" class="nav-link text-sm font-medium" data-page="contact">Contact Us</a>
+        </div>
+
+        <!-- Mobile menu button -->
+        <button id="menuToggle" class="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors" aria-label="Toggle menu">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="mobile-menu">
+      <div class="flex flex-col gap-4">
+        <a href="#" onclick="showPage('home'); closeMobileMenu();" class="text-base font-medium py-2">Home</a>
+        <a href="#" onclick="showPage('about'); closeMobileMenu();" class="text-base font-medium py-2">About</a>
+        <a href="#" onclick="showPage('team'); closeMobileMenu();" class="text-base font-medium py-2 pl-4 text-gray-600">Our Team</a>
+        <a href="#" onclick="showPage('outreach'); closeMobileMenu();" class="text-base font-medium py-2">Outreach</a>
+        <a href="#" onclick="showPage('rockets'); closeMobileMenu();" class="text-base font-medium py-2">Rockets</a>
+        <a href="#" onclick="showPage('contact'); closeMobileMenu();" class="text-base font-medium py-2">Contact Us</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ==================== HOME PAGE ==================== -->
+  <section id="page-home" class="page active pt-24">
+    <!-- Hero Section -->
+    <div class="max-w-7xl mx-auto px-6 py-16 lg:py-24">
+      <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <!-- Left: Text Content - EDIT THIS SECTION -->
+        <div class="order-2 lg:order-1">
+          <div class="hero-badge">
+            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+            American Rocketry Competition Team
+          </div>
+          
+          <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6" style="color: var(--fg);">
+            Building the Future,
+            <br>
+            <span style="color: var(--accent);">One Rocket at a Time</span>
+          </h1>
+          
+          <p class="text-lg mb-8 leading-relaxed" style="color: var(--muted); max-width: 520px;">
+            <!-- EDITABLE TEXT START -->
+            We are StratoForge, a dedicated team of students pushing the boundaries 
+            of aerospace engineering through innovation, precision, and teamwork. 
+            Our mission is to design, build, and launch rockets that reach new heights.
+            <!-- EDITABLE TEXT END -->
+          </p>
+          
+          <div class="flex flex-wrap gap-4">
+            <a href="#contact" onclick="showPage('contact')" class="btn-primary">Get In Touch</a>
+            <a href="#about" onclick="showPage('about')" class="btn-secondary">Learn More</a>
+          </div>
+
+          <!-- Stats Row - EDIT THE NUMBERS -->
+          <div class="grid grid-cols-3 gap-8 mt-12 pt-12" style="border-top: 1px solid var(--border);">
+            <div>
+              <div class="stat-number">like 2 twin</div>
+              <p class="text-sm mt-1" style="color: var(--muted);">Team Members</p>
+            </div>
+            <div>
+              <div class="stat-number">our rockets some shit</div>
+              <p class="text-sm mt-1" style="color: var(--muted);">Rockets Built</p>
+            </div>
+            <div>
+              <div class="stat-number">like 2 feet</div>
+              <p class="text-sm mt-1" style="color: var(--muted);">Ft Altitude Goal</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Image - REPLACE SRC WITH YOUR IMAGE -->
+        <div class="order-1 lg:order-2 float-animation">
+          <div class="hero-image-container aspect-square max-w-lg mx-auto lg:max-w-none">
+            <!-- REPLACE THIS IMAGE SOURCE WITH YOUR TEAM PHOTO OR ROCKET IMAGE -->
+            <img 
+              src="https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?w=800&h=800&fit=crop" 
+              alt="StratoForge Rocket Team"
+              class="w-full h-full object-cover"
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Features/Sponsor Highlights Section - EDITABLE -->
+    <div class="max-w-7xl mx-auto px-6 pb-20">
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="card">
+          <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style="background: rgba(232,93,4,0.1);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+              <path d="M2 17l10 5 10-5"/>
+              <path d="M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold mb-2">Engineering Excellence</h3>
+          <p class="text-sm" style="color: var(--muted);">
+            <!-- EDITABLE TEXT -->
+            Precision engineering meets creative problem-solving in every component we design.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style="background: rgba(232,93,4,0.1);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold mb-2">Team Collaboration</h3>
+          <p class="text-sm" style="color: var(--muted);">
+            <!-- EDITABLE TEXT -->
+            Diverse skills, unified vision. Our team works together to achieve the impossible.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style="background: rgba(232,93,4,0.1);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold mb-2">Innovation First</h3>
+          <p class="text-sm" style="color: var(--muted);">
+            <!-- EDITABLE TEXT -->
+            Pushing boundaries with cutting-edge designs and forward-thinking solutions.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== ABOUT PAGE ==================== -->
+  <section id="page-about" class="page pt-32">
+    <div class="max-w-7xl mx-auto px-6 pb-20">
+      <div class="max-w-3xl">
+        <h1 class="text-4xl md:text-5xl font-bold mb-6">About StratoForge</h1>
+        
+        <!-- EDITABLE ABOUT CONTENT -->
+        <div class="prose prose-lg" style="color: var(--muted);">
+          <p class="text-lg leading-relaxed mb-6">
+            <!-- ADD YOUR ABOUT TEXT HERE -->
+            StratoForge was founded with a simple yet ambitious goal: to compete at the highest level 
+            of the American Rocketry Competition while inspiring the next generation of engineers and scientists.
+          </p>
+          
+          <p class="text-lg leading-relaxed mb-6">
+            <!-- ADD MORE ABOUT TEXT HERE -->
+            Our team brings together students with diverse backgrounds in aerodynamics, propulsion systems, 
+            avionics, and project management. Together, we tackle complex challenges that real aerospace 
+            engineers face every day.
+          </p>
+
+          <p class="text-lg leading-relaxed">
+            <!-- ADD MORE TEXT AS NEEDED -->
+            We believe that hands-on experience is the best teacher. Through our work in the ARC competition, 
+            we're not just building rockets—we're building futures.
+          </p>
+        </div>
+
+        <!-- Mission/Vision Cards -->
+        <div class="grid md:grid-cols-2 gap-6 mt-12">
+          <div class="card">
+            <h3 class="text-xl font-bold mb-3">Our Mission</h3>
+            <p style="color: var(--muted);">
+              <!-- EDITABLE MISSION STATEMENT -->
+              To design, build, and successfully launch competitive rockets while fostering 
+              a passion for STEM education in our community.
+            </p>
+          </div>
+          <div class="card">
+            <h3 class="text-xl font-bold mb-3">Our Vision</h3>
+            <p style="color: var(--muted);">
+              <!-- EDITABLE VISION STATEMENT -->
+              To become a nationally recognized team known for innovation, excellence, 
+              and inspiring the next generation of aerospace leaders.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== TEAM PAGE ==================== -->
+  <section id="page-team" class="page pt-32">
+    <div class="max-w-7xl mx-auto px-6 pb-20">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4">Our Team</h1>
+      <p class="text-lg mb-12" style="color: var(--muted);">
+        Meet the people behind StratoForge
+      </p>
+
+      <!-- Team Grid - ADD YOUR TEAM MEMBERS HERE -->
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6" id="teamGrid">
+        <!-- Team member template - DUPLICATE THIS FOR EACH MEMBER -->
+        <!--
+        <div class="card text-center">
+          <div class="w-24 h-24 rounded-full mx-auto mb-4 bg-gray-200 overflow-hidden">
+            <img src="photo-url-here.jpg" alt="Name" class="w-full h-full object-cover">
+          </div>
+          <h3 class="font-bold text-lg">Member Name</h3>
+          <p class="text-sm" style="color: var(--accent);">Role/Position</p>
+          <p class="text-sm mt-2" style="color: var(--muted);">Brief bio here</p>
+        </div>
+        -->
+
+        <!-- Placeholder members - REPLACE WITH REAL DATA -->
+        <div class="card text-center">
+          <div class="w-24 h-24 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl font-bold" style="background: var(--bg); color: var(--muted);">
+            ?
+          </div>
+          <h3 class="font-bold text-lg">Team Member 1</h3>
+          <p class="text-sm" style="color: var(--accent);">Team Lead</p>
+          <p class="text-sm mt-2" style="color: var(--muted);">Bio goes here</p>
+        </div>
+
+        <div class="card text-center">
+          <div class="w-24 h-24 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl font-bold" style="background: var(--bg); color: var(--muted);">
+            ?
+          </div>
+          <h3 class="font-bold text-lg">Team Member 2</h3>
+          <p class="text-sm" style="color: var(--accent);">Lead Engineer</p>
+          <p class="text-sm mt-2" style="color: var(--muted);">Bio goes here</p>
+        </div>
+
+        <div class="card text-center">
+          <div class="w-24 h-24 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl font-bold" style="background: var(--bg); color: var(--muted);">
+            ?
+          </div>
+          <h3 class="font-bold text-lg">Team Member 3</h3>
+          <p class="text-sm" style="color: var(--accent);">Avionics Lead</p>
+          <p class="text-sm mt-2" style="color: var(--muted);">Bio goes here</p>
+        </div>
+
+        <div class="card text-center">
+          <div class="w-24 h-24 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl font-bold" style="background: var(--bg); color: var(--muted);">
+            ?
+          </div>
+          <h3 class="font-bold text-lg">Team Member 4</h3>
+          <p class="text-sm" style="color: var(--accent);">Outreach Lead</p>
+          <p class="text-sm mt-2" style="color: var(--muted);">Bio goes here</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== OUTREACH PAGE ==================== -->
+  <section id="page-outreach" class="page pt-32">
+    <div class="max-w-7xl mx-auto px-6 pb-20">
+      <div class="max-w-3xl mb-16">
+        <h1 class="text-4xl md:text-5xl font-bold mb-6">Our Outreach</h1>
+        <p class="text-lg" style="color: var(--muted);">
+          <!-- EDITABLE INTRO TEXT -->
+          Inspiring the next generation of rocket scientists and engineers through community engagement.
+        </p>
+      </div>
+
+      <!-- Outreach Content Sections - EDIT THESE -->
+      <div class="space-y-8">
+        <div class="card">
+          <h2 class="text-2xl font-bold mb-4">Community Events</h2>
+          <p style="color: var(--muted);" class="mb-4">
+            <!-- EDITABLE CONTENT -->
+            We regularly participate in local STEM fairs, school demonstrations, and community events 
+            to share our passion for rocketry with others.
+          </p>
+          <ul class="list-disc list-inside space-y-2" style="color: var(--muted);">
+            <li>Event 1 description</li>
+            <li>Event 2 description</li>
+            <li>Event 3 description</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h2 class="text-2xl font-bold mb-4">Educational Programs</h2>
+          <p style="color: var(--muted);" class="mb-4">
+            <!-- EDITABLE CONTENT -->
+            Our team develops educational materials and workshops to teach students about 
+            aerospace principles, rocket design, and the engineering process.
+          </p>
+          <ul class="list-disc list-inside space-y-2" style="color: var(--muted);">
+            <li>Program 1 description</li>
+            <li>Program 2 description</li>
+            <li>Program 3 description</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h2 class="text-2xl font-bold mb-4">Impact Numbers</h2>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-6">
+            <div class="text-center">
+              <div class="stat-number text-3xl">500+</div>
+              <p class="text-sm mt-1" style="color: var(--muted);">Students Reached</p>
+            </div>
+            <div class="text-center">
+              <div class="stat-number text-3xl">12</div>
+              <p class="text-sm mt-1" style="color: var(--muted);">Events Hosted</p>
+            </div>
+            <div class="text-center">
+              <div class="stat-number text-3xl">2500</div>
+              <p class="text-sm mt-1" style="color: var(--muted);">preSchools Visited</p>
+            </div>
+            <div class="text-center">
+              <div class="stat-number text-3xl">50+</div>
+              <p class="text-sm mt-1" style="color: var(--muted);">Volunteer Hours</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== ROCKETS PAGE (EMPTY PLACEHOLDER) ==================== -->
+  <section id="page-rockets" class="page pt-32">
+    <div class="max-w-7xl mx-auto px-6 pb-20">
+      <h1 class="text-4xl md:text-5xl font-bold mb-6">Our Rockets</h1>
+      <p class="text-lg mb-12" style="color: var(--muted);">
+        <!-- EDITABLE INTRO -->
+        Explore the rockets we've designed and launched.
+      </p>
+
+      <!--Rocket gallery grid - ADD YOUR ROCKETS HERE -->
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8" id="rocketGrid">
+        <!-- 
+        ROCKET CARD TEMPLATE - DUPLICATE FOR EACH ROCKET
+        <div class="card overflow-hidden p-0">
+          <div class="aspect-video bg-gray-200">
+            <img src="rocket-image.jpg" alt="Rocket Name" class="w-full h-full object-cover">
+          </div>
+          <div class="p-6">
+            <h3 class="font-bold text-xl mb-2">Rocket Name</h3>
+            <p class="text-sm mb-4" style="color: var(--muted);">Description of the rocket</p>
+            <div class="flex gap-4 text-sm" style="color: var(--muted);">
+              <span>Altitude: X ft</span>
+              <span>Year: 2024</span>
+            </div>
+          </div>
+        </div>
+        -->
+
+        <!-- Placeholder - Replace with actual rocket content -->
+        <div class="card flex items-center justify-center min-h-[300px]" style="border-style: dashed;">
+          <div class="text-center">
+            <svg class="mx-auto mb-4" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5">
+              <path d="M12 2L8 10h8L12 2z"/>
+              <path d="M8 10l-4 8h16l-4-8"/>
+            </svg>
+            <p style="color: var(--muted);">Rocket content coming soon</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== CONTACT PAGE ==================== -->
+  <section id="page-contact" class="page pt-32">
+    <div class="max-w-4xl mx-auto px-6 pb-20">
+      <div class="text-center mb-8">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4">Contact Us</h1>
+        <p class="text-lg" style="color: var(--muted);">
+          Please fill out the form below to get in touch with our team.
+        </p>
+      </div>
+      <div class="card p-2 md:p-4 overflow-hidden rounded-2xl shadow-lg">
+        <iframe 
+          src="https://docs.google.com/forms/d/e/1FAIpQLSdtznuKP2afAFolE7Ykjr-WcBQZv1P6sW0A8Hvs-T_ePTSXoQ/viewform?embedded=true" 
+          width="100%" 
+          height="800" 
+          frameborder="0" 
+          marginheight="0" 
+          marginwidth="0"
+          class="w-full rounded-xl"
+          style="border: none;"
+        >Loading…</iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer style="background: var(--fg); color: white;" class="py-12">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: var(--accent);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L8 10h8L12 2z"/>
+              <path d="M8 10l-4 8h16l-4-8"/>
+              <path d="M12 18v4"/>
+              <path d="M8 22h8"/>
+            </svg>
+          </div>
+          <span class="text-lg font-bold" style="font-family: 'Space Grotesk', sans-serif;">StratoForge</span>
+        </div>
+        
+        <p class="text-sm" style="color: rgba(255,255,255,0.6);">
+          &copy; <span id="currentYear"></span> StratoForge. All rights reserved.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Initialize current year
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+    // Page navigation
+    function showPage(pageId) {
+      // Hide all pages
+      document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
+      });
+      
+      // Show selected page
+      const targetPage = document.getElementById('page-' + pageId);
+      if (targetPage) {
+        targetPage.classList.add('active');
+      }
+      
+      // Update nav links
+      document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('active');
+        if (link.dataset.page === pageId) {
+          link.classList.add('active');
+        }
+      });
+      
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
+      return false;
+    }
+
+    // Mobile menu toggle
+    const menuToggle = document.getElementById('menuToggle');
+    const mobileMenu = document.getElementById('mobileMenu');
+
+    menuToggle.addEventListener('click', function() {
+      mobileMenu.classList.toggle('open');
+    });
+
+    function closeMobileMenu() {
+      mobileMenu.classList.remove('open');
+    }
+
+
+
+    // Intersection Observer for scroll animations (if you want to add more animated elements later)
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, observerOptions);
+
+    // Observe cards for animation
+    document.querySelectorAll('.card').forEach(card => {
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(20px)';
+      card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+      observer.observe(card);
+    });
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!menuToggle.contains(e.target) && !mobileMenu.contains(e.target)) {
+        closeMobileMenu();
+      }
+    });
+  </script>
+</body>
+</html>
